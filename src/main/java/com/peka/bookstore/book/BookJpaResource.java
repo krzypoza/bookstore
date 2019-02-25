@@ -2,8 +2,7 @@ package com.peka.bookstore.book;
 
 import java.net.URI;
 import java.util.List;
-
-import javax.validation.Valid;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,39 +17,50 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.peka.bookstore.exception.BookNotFoundExceptions;
 
 @RestController
-public class BookResource {
+public class BookJpaResource {
 
-	@Autowired
-	private BookDaoService service;
 	
-	@GetMapping(path="/books")
+	@Autowired
+	private BookRepository jpaRepository;
+	
+	@Autowired
+	private AuthorRepository authorJpaRepository; 
+	
+	@GetMapping(path="/jpa/books")
 	public List<Book> retriveindAllBooks(){
-		return service.findAll();
+		return jpaRepository.findAll();
 	}
 	
-	@GetMapping(path="/books/{id}")
-	public Book RetriveOneBook(@PathVariable int id){
-		Book book = service.findOne(id);
-		if(book==null)
+	@GetMapping(path="/jpa/books/{id}")
+	public Optional<Book> RetriveOneBook(@PathVariable int id){
+		Optional<Book> book = jpaRepository.findById(id);
+		if(!book.isPresent())
 			throw new BookNotFoundExceptions("id - "+ id);
 		return book;
 	}
+
 	
-	@DeleteMapping(path="/books/{id}")
+	@DeleteMapping(path="/jpa/books/{id}")
 	public void DeleteBookById(@PathVariable int id) {
-		Book book = service.DeleteById(id);
-		if(book==null)
-			throw new BookNotFoundExceptions("id - "+ id);
+		jpaRepository.deleteById(id);
 	}
 	
-	@PostMapping("/books")
-	public ResponseEntity<Object> createBook(@Valid @RequestBody Book book) {
-		Book savedBook = service.save(book);
+	
+	@PostMapping("/jpa/author/{author_id}/books")
+	public ResponseEntity<Object> createBook(@PathVariable int author_id, @RequestBody Book book) {
+			Optional<Author> authorOptional = authorJpaRepository.findById(author_id);
+			if(!authorOptional.isPresent())
+				throw new BookNotFoundExceptions("id - "+ author_id);
+		
+		Author author2 = authorOptional.get();
+		
+		book.setAuthor(author2);
+		jpaRepository.save(book);
 		
 		URI location = ServletUriComponentsBuilder
 				.fromCurrentRequest()
 				.path("/{id}")
-				.buildAndExpand(savedBook.getId()).toUri();
+				.buildAndExpand(book.getId()).toUri();
 		return ResponseEntity.created(location).build(); 
 	}
 }

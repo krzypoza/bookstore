@@ -12,11 +12,11 @@ public class BookDaoService {
 	
 	private static int booksCount = 3;
 	
-	static {
-		books.add(new Book(1, "title_1", "Author_1"));
-		books.add(new Book(2, "title_2", "Author_2"));
-		books.add(new Book(3, "title_3", "Author_3"));
-	}
+//	static {
+//		books.add(new Book(1, "title_1",null,"f"));
+//		books.add(new Book(2, "title_2",null,"g"));
+//		books.add(new Book(3, "title_3",null,"h"));
+//	}
 
 	public List<Book> findAll(){
 		return books;
@@ -51,15 +51,4 @@ public class BookDaoService {
 		return null;
 	}
 	
-//	public Book DeleteByTitle(String title) {
-//		Iterator<Book> iterator = books.iterator();
-//		while(iterator.hasNext()) {
-//			Book book = iterator.next();
-//			if(book.getTitle() == title) {
-//				iterator.remove();
-//				return book;
-//			}
-//		}
-//		return null;
-//	}
 }
